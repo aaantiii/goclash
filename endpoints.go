@@ -2,8 +2,15 @@ package clash
 
 type Endpoint string
 
-func (e Endpoint) URL() string {
-	return BaseURL + string(e)
+// Build returns the full URL for the endpoint.
+//
+// Example: PlayersEndpoint.Build("ABC123") returns "https://api.clashofclans.com/v1/players/ABC123"
+func (e Endpoint) Build(route string) string {
+	url := BaseURL + string(e)
+	if route != "" {
+		return url + "/" + route
+	}
+	return url
 }
 
 const (
