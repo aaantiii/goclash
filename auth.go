@@ -1,5 +1,7 @@
 package clash
 
+const keysPerAccount = 10
+
 type APIAccount struct {
 	Credentials *APIAccountCredentials
 	Keys        []*APIKey
@@ -26,9 +28,10 @@ type APIKey struct {
 	CidrRanges  []string `json:"cidrRanges"`
 }
 
-type APITokenIndexer struct {
+// APIKeyIndex is used to determine which account and key to use for a given request.
+type APIKeyIndex struct {
 	AccountIndex int
-	TokenIndex   int
+	KeyIndex     int
 }
 
 type Developer struct {
@@ -60,5 +63,3 @@ type Status struct {
 	Message string `json:"message,omitempty"`
 	Code    int    `json:"code,omitempty"`
 }
-
-const keysPerAccount = 10
