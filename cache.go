@@ -10,7 +10,7 @@ import (
 
 type cachedValue struct {
 	data  []byte      // data is the cached value
-	timer *time.Timer // timer to remove value from cache
+	timer *time.Timer // timer schedules removal of cached value
 }
 
 var (
@@ -31,7 +31,7 @@ func readCache(key string) ([]byte, bool) {
 	return value.data, ok
 }
 
-func writeCache(key string, data []byte, duration int) {
+func writeCache(key string, data []byte, duration time.Duration) {
 	if !useCache {
 		return
 	}
@@ -40,17 +40,16 @@ func writeCache(key string, data []byte, duration int) {
 	}
 	cache.Set(key, &cachedValue{
 		data: data,
-		timer: time.AfterFunc(time.Duration(duration), func() {
+		timer: time.AfterFunc(duration, func() {
 			cache.Remove(key)
 		}),
 	})
 }
 
-func cacheResponse(url string, res *resty.Response) error {
-	dur, err := strconv.Atoi(res.Header().Get("Cache-Control"))
+func cacheResponse(url string, res *resty.Response) {
+	secs, err := strconv.Atoi(res.Header().Get("Cache-Control")[8:])
 	if err != nil {
-		return err
+		return
 	}
-	writeCache(url, res.Body(), dur)
-	return nil
+	writeCache(url, res.Body(), time.Duration(secs)*time.Second)
 }
