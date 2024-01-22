@@ -2,71 +2,77 @@ package clash
 
 import (
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/go-resty/resty/v2"
 	cmap "github.com/orcaman/concurrent-map/v2"
 )
 
+type Cache struct {
+	enabled   bool
+	store     cmap.ConcurrentMap[string, *cachedValue]
+	cacheTime time.Duration
+	mu        sync.Mutex
+}
+
 type cachedValue struct {
 	data  []byte      // data is the cached value
 	timer *time.Timer // timer schedules removal of cached value
 }
 
-var (
-	useCache       = true
-	cache          = cmap.New[*cachedValue]()
-	fixedCacheTime time.Duration
-)
+func newCache() *Cache {
+	return &Cache{store: cmap.New[*cachedValue]()}
+}
 
 // UseCache sets whether to use cache.
 //
-// Cache is capable of storing large amounts of data in memory, across different shards. Using it together with UseFixedCacheTime may replace the need for a store like Redis, depending on your needs.
-//
-// Important: set this before using Client, don't change during runtime.
-func UseCache(v bool) {
-	useCache = v
+// Cache is capable of storing large amounts of data in memory, across different shards. Using it together with SetCacheTime may replace the need for a store like Redis, depending on your needs.
+func (h *Client) UseCache(v bool) {
+	h.cache.mu.Lock()
+	defer h.cache.mu.Unlock()
+	h.cache.enabled = v
 }
 
-// UseFixedCacheTime sets a fixed cache time, ignoring Cache-Control headers. Disable by passing 0 as argument.
-//
-// Important: set this before using Client, don't change during runtime.
-func UseFixedCacheTime(d time.Duration) {
-	fixedCacheTime = d
+// SetCacheTime sets a fixed cache time, ignoring CacheControl headers. Disable by passing 0 as argument.
+func (h *Client) SetCacheTime(d time.Duration) {
+	h.cache.mu.Lock()
+	defer h.cache.mu.Unlock()
+	h.cache.cacheTime = d
 }
 
-func readCache(key string) ([]byte, bool) {
-	if !useCache {
+func (c *Cache) Get(key string) ([]byte, bool) {
+	if !c.enabled {
 		return nil, false
 	}
-	value, ok := cache.Get(key)
+	value, ok := c.store.Get(key)
 	return value.data, ok
 }
 
-func writeCache(key string, data []byte, duration time.Duration) {
-	if !useCache {
+func (c *Cache) Set(key string, data []byte, duration time.Duration) {
+	if !c.enabled {
 		return
 	}
-	if value, ok := cache.Get(key); ok {
+	if value, ok := c.store.Get(key); ok {
 		value.timer.Stop()
 	}
-	cache.Set(key, &cachedValue{
+	c.store.Set(key, &cachedValue{
 		data: data,
 		timer: time.AfterFunc(duration, func() {
-			cache.Remove(key)
+			c.store.Remove(key)
 		}),
 	})
 }
 
-func cacheResponse(url string, res *resty.Response) {
-	if fixedCacheTime > 0 {
-		writeCache(url, res.Body(), fixedCacheTime)
+// CacheResponse caches the response body of a resty.Response, using the Cache-Control header to determine the cache time.
+func (c *Cache) CacheResponse(url string, res *resty.Response) {
+	if c.cacheTime > 0 {
+		c.Set(url, res.Body(), c.cacheTime)
 		return
 	}
-
 	seconds, err := strconv.Atoi(res.Header().Get("Cache-Control")[8:])
 	if err != nil {
 		return
 	}
-	writeCache(url, res.Body(), time.Duration(seconds)*time.Second)
+	c.Set(url, res.Body(), time.Duration(seconds)*time.Second)
 }
