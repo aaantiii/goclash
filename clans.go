@@ -94,6 +94,12 @@ const (
 	WarFrequencyAny           = "any"
 )
 
+type Language struct {
+	Name         string `json:"name"`
+	ID           int    `json:"id"`
+	LanguageCode string `json:"languageCode"`
+}
+
 type ClanCapital struct {
 	CapitalHallLevel int            `json:"capitalHallLevel"`
 	Districts        []ClanDistrict `json:"districts"`
