@@ -31,6 +31,7 @@ type PlayerBase struct {
 	ClanCapitalContributions int               `json:"clanCapitalContributions"`
 }
 
+// Player is a player returned by the API.
 type Player struct {
 	*PlayerBase
 	WarPreference       string            `json:"warPreference"`
@@ -126,13 +127,15 @@ const (
 	PlayerVerificationStatusOk      = "ok"
 	PlayerVerificationStatusInvalid = "invalid"
 
-	// TODO: test
 	PlayerHouseElementTypeGround = "ground"
 	PlayerHouseElementTypeRoof   = "roof"
 	PlayerHouseElementTypeFoot   = "foot"
 	PlayerHouseElementTypeDeco   = "deco"
 )
 
+// GetPlayer returns information about a single player by tag.
+//
+// GET /players/{playerTag}
 func (h *Client) GetPlayer(tag string) (*Player, error) {
 	tag = TagURLSafe(CorrectTag(tag))
 	req := h.withAuth(h.newDefaultRequest())
@@ -172,6 +175,9 @@ func (h *Client) GetPlayers(tags ...string) (Players, error) {
 	return players, nil
 }
 
+// VerifyPlayer verifies a player token.
+//
+// POST /players/{playerTag}/verifytoken
 func (h *Client) VerifyPlayer(tag, token string) (*PlayerVerification, error) {
 	tag = TagURLSafe(CorrectTag(tag))
 	req := h.withAuth(h.newDefaultRequest()).SetBody(map[string]string{
