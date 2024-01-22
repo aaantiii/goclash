@@ -6,8 +6,6 @@ import (
 	"strings"
 
 	"github.com/joho/godotenv"
-
-	"github.com/aaantiii/clash"
 )
 
 func main() {

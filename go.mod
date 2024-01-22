@@ -1,4 +1,4 @@
-module github.com/aaantiii/clash
+module github.com/aaantiii/goclash
 
 go 1.21.5
 
