@@ -24,7 +24,7 @@ const (
 	BuilderBaseLeaguesEndpoint Endpoint = "/builderbaseleagues"
 	CapitalLeaguesEndpoint     Endpoint = "/capitalleagues"
 	LocationsEndpoint          Endpoint = "/locations"
-	GoldpassEndpoint           Endpoint = "/goldpass/seasons/current"
+	GoldPassEndpoint           Endpoint = "/goldpass/seasons/current"
 	LabelsEndpoint             Endpoint = "/labels"
 )
 
