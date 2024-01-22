@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"slices"
+	"strconv"
 	"sync"
 	"time"
 
@@ -46,16 +47,11 @@ func newClient(creds Credentials) (*Client, error) {
 	return client, nil
 }
 
-func (h *Client) do(method, url string, body any, retry bool) ([]byte, error) {
+func (h *Client) do(method, url string, req *resty.Request, retry bool) ([]byte, error) {
 	if useCache {
 		if data, ok := readCache(url); ok {
 			return data, nil
 		}
-	}
-
-	req := h.withAuth(h.newDefaultRequest())
-	if method == http.MethodPost && body != nil {
-		req.SetBody(body)
 	}
 
 	res, err := req.Execute(method, url)
@@ -84,7 +80,7 @@ func (h *Client) do(method, url string, body any, retry bool) ([]byte, error) {
 			if err = h.updateAccounts(); err != nil {
 				return nil, newClientErr(err)
 			}
-			return h.do(method, url, body, false)
+			return h.do(method, url, req, false)
 		}
 	}
 
@@ -265,10 +261,26 @@ func (h *Client) newDefaultRequest() *resty.Request {
 	return h.rc.R().
 		SetHeader("Accept", "application/json").
 		SetHeader("Content-Type", "application/json").
-		SetHeader("User-Agent", "clash.go")
+		SetHeader("User-Agent", "goclash")
 }
 
 func (h *Client) withAuth(req *resty.Request) *resty.Request {
 	key := h.getKey()
-	return req.SetHeader("Authorization", fmt.Sprintf("Bearer %s", key))
+	return req.SetHeader("Authorization", "Bearer "+key)
+}
+
+func (h *Client) withPaging(r *resty.Request, params *PagingParams) *resty.Request {
+	if params == nil {
+		return r
+	}
+
+	if params.After != "" {
+		r.SetQueryParam("after", params.After)
+	} else if params.Before != "" {
+		r.SetQueryParam("before", params.Before)
+	}
+	if params.Limit > 0 {
+		r.SetQueryParam("limit", strconv.Itoa(params.Limit))
+	}
+	return r
 }
