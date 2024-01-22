@@ -20,12 +20,11 @@ func main() {
 	passwordStr := os.Getenv("PASSWORDS")
 	emails := strings.Split(emailStr, ",")
 	passwords := strings.Split(passwordStr, ",")
-
 	for i, email := range emails {
 		creds[email] = passwords[i]
 	}
 
-	client, err := clash.NewClient(creds)
+	client, err := clash.New(creds)
 	if err != nil {
 		panic(err)
 	}
@@ -38,7 +37,7 @@ func main() {
 	fmt.Println(player.Name)
 
 	// concurrently get multiple players by tag
-	players, err := client.GetPlayers("#8QYG8CJ0", "#Q9RY8YRYJ", "#G0CUP9UPU", "#QVLQLQUC2")
+	players, err := client.GetPlayers("#8QYG8CJ0", "#Q9RY8YRYJ")
 	if err != nil {
 		panic(err)
 	}
