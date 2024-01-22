@@ -37,10 +37,17 @@ func main() {
 	}
 	fmt.Println(clan.Name)
 
-	// concurrently get multiple clans by tag
-	clans, err := client.GetClans("#2QC0QQPQ2", "#2820UPPQC", "#2LG222Q0L", "#2YVJV8VC0")
+	// get clan war log
+	log, err := client.GetClanWarLog("#2QC0QQPQ2", nil)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(clans.Tags())
+	fmt.Printf("%v\n", log)
+
+	// search clans
+	clans, err := client.SearchClans(clash.SearchClanParams{Name: "Lost 5", PagingParams: &clash.PagingParams{Limit: 5}})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%v\n", clans)
 }
