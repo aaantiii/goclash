@@ -22,6 +22,12 @@ type Client struct {
 	mu       sync.Mutex
 }
 
+var defaultHeaders = map[string]string{
+	"Accept":       "application/json",
+	"Content-Type": "application/json",
+	"User-Agent":   "goclash",
+}
+
 func newClient(creds Credentials) (*Client, error) {
 	accounts := make([]*APIAccount, 0, len(creds))
 	for email, password := range creds {
@@ -46,6 +52,7 @@ func newClient(creds Credentials) (*Client, error) {
 	if err := client.updateAccounts(); err != nil {
 		return nil, err
 	}
+
 	return client, nil
 }
 
@@ -61,7 +68,7 @@ func (h *Client) do(method, url string, req *resty.Request, retry bool) ([]byte,
 		return nil, err
 	}
 
-	if res.StatusCode() < 300 && res.StatusCode() >= 200 {
+	if res.StatusCode() < 300 {
 		h.cache.CacheResponse(url, res)
 		return res.Body(), nil
 	}
@@ -77,10 +84,10 @@ func (h *Client) do(method, url string, req *resty.Request, retry bool) ([]byte,
 
 		if clientErr.APIError.Reason == ReasonInvalidIP {
 			if err = h.updateIPAddr(); err != nil {
-				return nil, newClientErr(err)
+				return nil, err
 			}
 			if err = h.updateAccounts(); err != nil {
-				return nil, newClientErr(err)
+				return nil, err
 			}
 			return h.do(method, url, req, false)
 		}
@@ -257,10 +264,7 @@ func (h *Client) getKey() string {
 }
 
 func (h *Client) newDefaultRequest() *resty.Request {
-	return h.rc.R().
-		SetHeader("Accept", "application/json").
-		SetHeader("Content-Type", "application/json").
-		SetHeader("User-Agent", "goclash")
+	return h.rc.R().SetHeaders(defaultHeaders)
 }
 
 func (h *Client) withAuth(req *resty.Request) *resty.Request {
