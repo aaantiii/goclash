@@ -18,6 +18,7 @@ type Client struct {
 	rc       *resty.Client
 	ipAddr   string
 	keyIndex APIKeyIndex
+	cache    *Cache
 	mu       sync.Mutex
 }
 
@@ -34,8 +35,9 @@ func newClient(creds Credentials) (*Client, error) {
 	}
 
 	client := &Client{
-		rc:       resty.New(),
 		accounts: accounts,
+		rc:       resty.New(),
+		cache:    newCache(),
 	}
 
 	if err := client.updateIPAddr(); err != nil {
@@ -48,8 +50,8 @@ func newClient(creds Credentials) (*Client, error) {
 }
 
 func (h *Client) do(method, url string, req *resty.Request, retry bool) ([]byte, error) {
-	if useCache {
-		if data, ok := readCache(url); ok {
+	if h.cache.enabled {
+		if data, ok := h.cache.Get(url); ok {
 			return data, nil
 		}
 	}
@@ -60,7 +62,7 @@ func (h *Client) do(method, url string, req *resty.Request, retry bool) ([]byte,
 	}
 
 	if res.StatusCode() < 300 && res.StatusCode() >= 200 {
-		cacheResponse(url, res)
+		h.cache.CacheResponse(url, res)
 		return res.Body(), nil
 	}
 
@@ -203,9 +205,9 @@ func (h *Client) updateAccountKeys(account *APIAccount) error {
 }
 
 func (h *Client) createAccountKey(account *APIAccount, index int) error {
-	desc := fmt.Sprintf("Created at %s by clash.go", time.Now().UTC().Round(time.Minute).String())
+	desc := fmt.Sprintf("Created at %s by goclash", time.Now().UTC().Round(time.Minute).String())
 	res, err := h.newDefaultRequest().SetBody(&APIKey{
-		Name:        "clash.go",
+		Name:        "goclash",
 		Description: desc,
 		CidrRanges:  []string{h.ipAddr},
 		Scopes:      []string{"clash"},
@@ -230,9 +232,7 @@ func (h *Client) createAccountKey(account *APIAccount, index int) error {
 }
 
 func (h *Client) revokeAccountKey(key *APIKey) error {
-	payload := struct {
-		ID string `json:"id"`
-	}{ID: key.ID}
+	payload := map[string]any{"id": key}
 	res, err := h.newDefaultRequest().SetBody(payload).Post(DevKeyRevokeEndpoint.URL())
 	if err != nil {
 		return err
@@ -241,7 +241,6 @@ func (h *Client) revokeAccountKey(key *APIKey) error {
 	if res.StatusCode() != http.StatusOK {
 		return errors.New(string(res.Body()))
 	}
-
 	return nil
 }
 
@@ -265,8 +264,7 @@ func (h *Client) newDefaultRequest() *resty.Request {
 }
 
 func (h *Client) withAuth(req *resty.Request) *resty.Request {
-	key := h.getKey()
-	return req.SetHeader("Authorization", "Bearer "+key)
+	return req.SetAuthToken(h.getKey())
 }
 
 func (h *Client) withPaging(r *resty.Request, params *PagingParams) *resty.Request {
