@@ -17,6 +17,7 @@ func (e Endpoint) Build(routes ...string) string {
 const (
 	BaseURL                             = "https://api.clashofclans.com/v1"
 	ClansEndpoint              Endpoint = "/clans"
+	ClanWarLeaguesEndpoint     Endpoint = "/clanwarleagues"
 	PlayersEndpoint            Endpoint = "/players"
 	LeaguesEndpoint            Endpoint = "/leagues"
 	WarLeaguesEndpoint         Endpoint = "/warleagues"
