@@ -135,7 +135,8 @@ const (
 
 func (h *Client) GetPlayer(tag string) (*Player, error) {
 	tag = TagURLSafe(CorrectTag(tag))
-	data, err := h.do(http.MethodGet, PlayersEndpoint.Build(tag), nil, true)
+	req := h.withAuth(h.newDefaultRequest())
+	data, err := h.do(http.MethodGet, PlayersEndpoint.Build(tag), req, true)
 	if err != nil {
 		return nil, err
 	}
@@ -173,9 +174,10 @@ func (h *Client) GetPlayers(tags ...string) (Players, error) {
 
 func (h *Client) VerifyPlayer(tag, token string) (*PlayerVerification, error) {
 	tag = TagURLSafe(CorrectTag(tag))
-	data, err := h.do(http.MethodPost, PlayersEndpoint.Build(fmt.Sprintf("%s/verifytoken", tag)), map[string]string{
+	req := h.withAuth(h.newDefaultRequest()).SetBody(map[string]string{
 		"token": token,
-	}, false)
+	})
+	data, err := h.do(http.MethodPost, PlayersEndpoint.Build(fmt.Sprintf("%s/verifytoken", tag)), req, false)
 	if err != nil {
 		return nil, err
 	}
