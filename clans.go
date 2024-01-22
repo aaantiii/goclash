@@ -107,7 +107,8 @@ type ClanDistrict struct {
 // GetClan returns a clan by its tag.
 func (h *Client) GetClan(tag string) (*Clan, error) {
 	tag = TagURLSafe(CorrectTag(tag))
-	data, err := h.do(http.MethodGet, ClansEndpoint.Build(tag), nil, true)
+	req := h.withAuth(h.newDefaultRequest())
+	data, err := h.do(http.MethodGet, ClansEndpoint.Build(tag), req, true)
 	if err != nil {
 		return nil, err
 	}
