@@ -25,7 +25,7 @@ func main() {
 		creds[email] = passwords[i]
 	}
 
-	client, err := clash.NewClient(creds)
+	client, err := clash.New(creds)
 	if err != nil {
 		panic(err)
 	}
