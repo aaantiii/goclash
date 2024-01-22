@@ -1,5 +1,7 @@
 package clash
 
+// Achievement represents a Clash of Clans achievement.
+// Use AchievementIndex* constants to index into the Achievements slice.
 type Achievement struct {
 	Name           string `json:"name"`
 	Stars          int    `json:"stars"`
@@ -10,4 +12,51 @@ type Achievement struct {
 	Village        string `json:"village"`
 }
 
-const ()
+const (
+	AchievementIndexBiggerCoffers = iota
+	AchievementIndexGetThoseGoblins
+	AchievementIndexBiggerAndBetter
+	AchievementIndexNiceAndTidy
+	AchievementIndexDiscoverNewTroops
+	AchievementIndexGoldGrab
+	AchievementIndexElixirEscapade
+	AchievementIndexSweetVictory
+	AchievementIndexEmpireBuilder
+	AchievementIndexWallBuster
+	AchievementIndexHumiliator
+	AchievementIndexUnionBuster
+	AchievementIndexConqueror
+	AchievementIndexUnbreakable
+	AchievementIndexFriendInNeed
+	AchievementIndexMortarMauler
+	AchievementIndexHeroicHeist
+	AchievementIndexLeagueAllStar
+	AchievementIndexXbowExterminator
+	AchievementIndexFirefighter
+	AchievementIndexWarHero
+	AchievementIndexClanWarWealth
+	AchievementIndexAntiArtillery
+	AchievementIndexSharingIsCaring
+	AchievementIndexKeepYourAccountSafeOld
+	AchievementIndexMasterEngineering
+	AchievementIndexNextGenerationModel
+	AchievementIndexUnBuildIt
+	AchievementIndexChampionBuilder
+	AchievementIndexHighGear
+	AchievementIndexHiddenTreasures
+	AchievementIndexGamesChampion
+	AchievementIndexDragonSlayer
+	AchievementIndexWarLeagueLegend
+	AchievementIndexKeepYourAccountSafe
+	AchievementIndexWellSeasoned
+	AchievementIndexShatteredAndScattered
+	AchievementIndexNotSoEasyThisTime
+	AchievementIndexBustThis
+	AchievementIndexSuperbWork
+	AchievementIndexSiegeSharer
+	AchievementIndexAggressiveCapitalism
+	AchievementIndexMostValuableClanmate
+	AchievementIndexCounterspell
+	AchievementIndexMonolithMasher
+	AchievementIndexUngratefulChild
+)
