@@ -5,23 +5,26 @@ type Endpoint string
 // Build returns the full URL for the endpoint.
 //
 // Example: PlayersEndpoint.Build("ABC123") returns "https://api.clashofclans.com/v1/players/ABC123"
-func (e Endpoint) Build(route string) string {
+func (e Endpoint) Build(routes ...string) string {
 	url := BaseURL + string(e)
-	if route != "" {
-		return url + "/" + route
+	for _, route := range routes {
+		url += "/" + route
 	}
+
 	return url
 }
 
 const (
-	BaseURL                     = "https://api.clashofclans.com/v1"
-	ClansEndpoint      Endpoint = "/clans"
-	PlayersEndpoint    Endpoint = "/players"
-	LeaguesEndpoint    Endpoint = "/leagues"
-	WarLeaguesEndpoint Endpoint = "/warleagues"
-	LocationsEndpoint  Endpoint = "/locations"
-	GoldpassEndpoint   Endpoint = "/goldpass/seasons/current"
-	LabelsEndpoint     Endpoint = "/labels"
+	BaseURL                             = "https://api.clashofclans.com/v1"
+	ClansEndpoint              Endpoint = "/clans"
+	PlayersEndpoint            Endpoint = "/players"
+	LeaguesEndpoint            Endpoint = "/leagues"
+	WarLeaguesEndpoint         Endpoint = "/warleagues"
+	BuilderBaseLeaguesEndpoint Endpoint = "/builderbaseleagues"
+	CapitalLeaguesEndpoint     Endpoint = "/capitalleagues"
+	LocationsEndpoint          Endpoint = "/locations"
+	GoldpassEndpoint           Endpoint = "/goldpass/seasons/current"
+	LabelsEndpoint             Endpoint = "/labels"
 )
 
 type DevEndpoint string
