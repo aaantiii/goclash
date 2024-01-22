@@ -42,7 +42,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(players.Tags())
+	fmt.Printf("%v\n", players)
 
 	// verify player with api token
 	verification, err := client.VerifyPlayer("#8QYG8CJ0", "apiToken")
