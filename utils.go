@@ -3,6 +3,7 @@ package clash
 import (
 	"net/url"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -20,4 +21,31 @@ func CorrectTag(tag string) string {
 // TagURLSafe encodes a tag to be used in a URL.
 func TagURLSafe(tag string) string {
 	return url.PathEscape(tag)
+}
+
+func createQueryParams(params map[string]any) url.Values {
+	query := url.Values{}
+	for key, value := range params {
+		if value == nil {
+			continue
+		}
+
+		switch v := value.(type) {
+		case string:
+			if v != "" {
+				query.Set(key, v)
+			}
+		case int:
+			query.Set(key, strconv.Itoa(v))
+		case *int:
+			query.Set(key, strconv.Itoa(*v))
+		case bool:
+			query.Set(key, strconv.FormatBool(v))
+		case []string:
+			for _, s := range v {
+				query.Add(key, s)
+			}
+		}
+	}
+	return query
 }
