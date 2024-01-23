@@ -1,4 +1,4 @@
-package clash
+package goclash
 
 type ImageURLs struct {
 	Tiny   string `json:"tiny,omitempty"`

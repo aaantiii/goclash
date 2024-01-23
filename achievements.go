@@ -1,4 +1,4 @@
-package clash
+package goclash
 
 // Achievement represents a Clash of Clans achievement.
 // Use AchievementIndex* constants to index into the Achievements slice.

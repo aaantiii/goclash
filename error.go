@@ -1,4 +1,4 @@
-package clash
+package goclash
 
 // APIError is the error directly returned by the Clash of Clans API. Every error returned by Client is ClientError, which embeds *APIError.
 type APIError struct {

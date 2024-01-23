@@ -1,4 +1,4 @@
-package clash
+package goclash
 
 // Paging represents the paging information returned by the API.
 type Paging struct {

@@ -1,4 +1,4 @@
-package clash
+package goclash
 
 const keysPerAccount = 10
 

@@ -1,4 +1,4 @@
-package clash
+package goclash
 
 import (
 	"net/url"

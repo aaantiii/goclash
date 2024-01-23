@@ -1,4 +1,4 @@
-package clash
+package goclash
 
 type Endpoint string
 
