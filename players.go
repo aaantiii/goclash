@@ -55,12 +55,20 @@ func (p *Player) InGameURL() string {
 // GetAchievement returns an IndexedAchievement by Achievement.Name and Achievement.Info. The index can be used to get the same achievement from other players, to make it more efficient.
 func (p *Player) GetAchievement(achievement *Achievement) (*IndexedAchievement, error) {
 	for i, a := range p.Achievements {
-		if a.Name == achievement.Name && a.Info == achievement.Info {
-			return &IndexedAchievement{
-				Achievement: &a,
-				Index:       i,
-			}, nil
+		switch a.Name {
+		case AchievementKeepYourAccountSafeOld.Name:
+			if a.Name != achievement.Name || a.Info != achievement.Info {
+				continue
+			}
+		default:
+			if a.Name != achievement.Name {
+				continue
+			}
 		}
+		return &IndexedAchievement{
+			Achievement: &a,
+			Index:       i,
+		}, nil
 	}
 	return nil, errors.New("achievement not found")
 }
