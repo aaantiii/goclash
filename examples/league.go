@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"github.com/joho/godotenv"
+
+	"github.com/aaantiii/goclash"
 )
 
 func main() {
@@ -13,7 +15,7 @@ func main() {
 		panic(err)
 	}
 
-	creds := make(clash.Credentials)
+	creds := make(goclash.Credentials)
 	emailStr := os.Getenv("EMAILS")
 	passwordStr := os.Getenv("PASSWORDS")
 	emails := strings.Split(emailStr, ",")
@@ -23,7 +25,7 @@ func main() {
 		creds[email] = passwords[i]
 	}
 
-	client, err := clash.New(creds)
+	client, err := goclash.New(creds)
 	if err != nil {
 		panic(err)
 	}
@@ -36,7 +38,7 @@ func main() {
 	fmt.Printf("%v\n", leagues)
 
 	// get legend league seasons, limit to 5 results
-	seasons, err := client.GetLeagueSeasons(clash.LeagueLegend, &clash.PagingParams{Limit: 5})
+	seasons, err := client.GetLeagueSeasons(goclash.LeagueLegend, &goclash.PagingParams{Limit: 5})
 	if err != nil {
 		panic(err)
 	}

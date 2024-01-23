@@ -29,6 +29,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	println(player.Name)
 }
 ```
 
