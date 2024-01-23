@@ -111,8 +111,8 @@ func (h *Client) updateIPAddr() error {
 	}
 
 	h.mu.Lock()
-	defer h.mu.Unlock()
 	h.ipAddr = body
+	h.mu.Unlock()
 	return nil
 }
 
@@ -159,8 +159,8 @@ func (h *Client) getAccountKeys(account *APIAccount) error {
 	}
 
 	h.mu.Lock()
-	defer h.mu.Unlock()
 	account.Keys = body.Keys
+	h.mu.Unlock()
 	return nil
 }
 
