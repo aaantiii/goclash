@@ -1,6 +1,7 @@
 package goclash
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"sync"
@@ -51,6 +52,19 @@ func (p *Player) InGameURL() string {
 	return "https://link.clashofclans.com?action=OpenPlayerProfile&tag=" + TagURLSafe(p.Tag)
 }
 
+// GetAchievement returns an IndexedAchievement by Achievement.Name and Achievement.Info. The index can be used to get the same achievement from other players, to make it more efficient.
+func (p *Player) GetAchievement(achievement *Achievement) (*IndexedAchievement, error) {
+	for i, a := range p.Achievements {
+		if a.Name == achievement.Name && a.Info == achievement.Info {
+			return &IndexedAchievement{
+				Achievement: &a,
+				Index:       i,
+			}, nil
+		}
+	}
+	return nil, errors.New("achievement not found")
+}
+
 type Players []*Player
 
 func (p Players) Tags() []string {
@@ -59,6 +73,23 @@ func (p Players) Tags() []string {
 		tags[i] = player.Tag
 	}
 	return tags
+}
+
+func (p Players) GetAchievement(achievement *Achievement) ([]*Achievement, error) {
+	if len(p) == 0 {
+		return nil, errors.New("no players were provided")
+	}
+
+	indexed, err := p[0].GetAchievement(achievement)
+	if err != nil {
+		return nil, err
+	}
+
+	achievements := make([]*Achievement, len(p))
+	for i, player := range p {
+		achievements[i] = &player.Achievements[indexed.Index]
+	}
+	return achievements, nil
 }
 
 type PlayerClan struct {
