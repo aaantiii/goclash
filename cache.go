@@ -9,6 +9,7 @@ import (
 	cmap "github.com/orcaman/concurrent-map/v2"
 )
 
+// Cache is a simple but performant in-memory cache.
 type Cache struct {
 	enabled   bool
 	store     cmap.ConcurrentMap[string, *cachedValue]
@@ -22,7 +23,10 @@ type cachedValue struct {
 }
 
 func newCache() *Cache {
-	return &Cache{store: cmap.New[*cachedValue]()}
+	return &Cache{
+		store:   cmap.New[*cachedValue](),
+		enabled: true,
+	}
 }
 
 // UseCache sets whether to use cache.
@@ -41,14 +45,20 @@ func (h *Client) SetCacheTime(d time.Duration) {
 	h.cache.cacheTime = d
 }
 
+// Get gets a value from the cache, and a boolean indicating whether the value was found.
 func (c *Cache) Get(key string) ([]byte, bool) {
 	if !c.enabled {
 		return nil, false
 	}
+
 	value, ok := c.store.Get(key)
+	if !ok {
+		return nil, false
+	}
 	return value.data, ok
 }
 
+// Set sets a value in the cache, with a duration after it gets removed.
 func (c *Cache) Set(key string, data []byte, duration time.Duration) {
 	if !c.enabled {
 		return
