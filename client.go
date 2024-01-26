@@ -106,6 +106,9 @@ func (h *Client) updateIPAddr() error {
 	if res.StatusCode() != http.StatusOK {
 		return errors.New(body)
 	}
+	if body == "" {
+		return errors.New("couldn't get IP address")
+	}
 	if body == h.ipAddr {
 		return nil
 	}
