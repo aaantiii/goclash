@@ -3,6 +3,7 @@ package goclash
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"slices"
 	"strconv"
@@ -32,7 +33,6 @@ func newClient(creds Credentials) (*Client, error) {
 	accounts := make([]*APIAccount, 0, len(creds))
 	for email, password := range creds {
 		accounts = append(accounts, &APIAccount{
-			Keys: make([]*APIKey, keysPerAccount),
 			Credentials: &APIAccountCredentials{
 				Email:    email,
 				Password: password,
@@ -162,7 +162,9 @@ func (h *Client) getAccountKeys(account *APIAccount) error {
 	}
 
 	h.mu.Lock()
-	account.Keys = body.Keys
+	for i := range body.Keys {
+		account.Keys[i] = body.Keys[i]
+	}
 	h.mu.Unlock()
 	return nil
 }
@@ -175,12 +177,12 @@ func (h *Client) updateAccountKeys(account *APIAccount) error {
 	errChan := make(chan error, keysPerAccount)
 	var freeKeyIndexes []int
 	var wg sync.WaitGroup
-	for i, key := range account.Keys {
-		if key == nil {
+	for i := 0; i < keysPerAccount; i++ {
+		if account.Keys[i] == nil {
 			freeKeyIndexes = append(freeKeyIndexes, i)
 			continue
 		}
-		if !slices.Contains(key.CidrRanges, h.ipAddr) {
+		if !slices.Contains(account.Keys[i].CidrRanges, h.ipAddr) {
 			wg.Add(1)
 			go func(key *APIKey, i int) {
 				defer wg.Done()
@@ -192,7 +194,7 @@ func (h *Client) updateAccountKeys(account *APIAccount) error {
 					errChan <- err
 					return
 				}
-			}(key, i)
+			}(account.Keys[i], i)
 		}
 	}
 	wg.Wait()
@@ -201,7 +203,7 @@ func (h *Client) updateAccountKeys(account *APIAccount) error {
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
-			if err := h.createAccountKey(account, keysPerAccount-i); err != nil {
+			if err := h.createAccountKey(account, i); err != nil {
 				errChan <- err
 			}
 		}(i)
@@ -216,12 +218,15 @@ func (h *Client) updateAccountKeys(account *APIAccount) error {
 
 func (h *Client) createAccountKey(account *APIAccount, index int) error {
 	desc := fmt.Sprintf("Created at %s by goclash", time.Now().UTC().Round(time.Minute).String())
-	res, err := h.newDefaultRequest().SetBody(&APIKey{
+	key := &APIKey{
 		Name:        "goclash",
 		Description: desc,
 		CidrRanges:  []string{h.ipAddr},
 		Scopes:      []string{"clash"},
-	}).Post(DevKeyCreateEndpoint.URL())
+	}
+	log.Print("key: ", key)
+
+	res, err := h.newDefaultRequest().SetBody(key).Post(DevKeyCreateEndpoint.URL())
 	if err != nil {
 		return err
 	}
