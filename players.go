@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 	"sync"
 
 	"github.com/bytedance/sonic"
@@ -83,11 +84,19 @@ func (p Players) Tags() []string {
 	return tags
 }
 
+// String implements fmt.Stringer, returning a comma-separated list of player names.
+func (p Players) String() string {
+	str := make([]string, len(p))
+	for i, player := range p {
+		str[i] = player.Name
+	}
+	return strings.Join(str, ", ")
+}
+
 func (p Players) GetAchievement(achievement *Achievement) ([]*Achievement, error) {
 	if len(p) == 0 {
 		return nil, errors.New("no players were provided")
 	}
-
 	indexed, err := p[0].GetAchievement(achievement)
 	if err != nil {
 		return nil, err
