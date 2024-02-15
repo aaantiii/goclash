@@ -214,6 +214,35 @@ type SearchClanParams struct {
 	LabelIDs      []string `json:"labelIds,omitempty"`
 }
 
+func (p SearchClanParams) build() url.Values {
+	values := url.Values{}
+	if p.Name != "" {
+		values.Set("name", p.Name)
+	}
+	if p.WarFrequency != "" {
+		values.Set("warFrequency", p.WarFrequency)
+	}
+	if p.LocationID != "" {
+		values.Set("locationId", p.LocationID)
+	}
+	if p.MinMembers != "" {
+		values.Set("minMembers", p.MinMembers)
+	}
+	if p.MaxMembers != "" {
+		values.Set("maxMembers", p.MaxMembers)
+	}
+	if p.MinClanPoints != "" {
+		values.Set("minClanPoints", p.MinClanPoints)
+	}
+	if p.MinClanLevel != "" {
+		values.Set("minClanLevel", p.MinClanLevel)
+	}
+	if len(p.LabelIDs) > 0 {
+		values["labelIds"] = p.LabelIDs
+	}
+	return values
+}
+
 type ClanWarLeagueGroupState = string
 
 const (
@@ -351,16 +380,7 @@ func (h *Client) GetClanWarLog(tag string, params *PagingParams) (*PaginatedResp
 // GET /clans
 func (h *Client) SearchClans(params SearchClanParams) (*PaginatedResponse[Clan], error) {
 	req := h.withPaging(h.withAuth(h.newDefaultRequest()), params.PagingParams).
-		SetQueryParamsFromValues(url.Values{
-			"name":          {params.Name},
-			"warFrequency":  {params.WarFrequency},
-			"locationId":    {params.LocationID},
-			"minMembers":    {params.MinMembers},
-			"maxMembers":    {params.MaxMembers},
-			"minClanPoints": {params.MinClanPoints},
-			"minClanLevel":  {params.MinClanLevel},
-			"labelIds":      params.LabelIDs,
-		})
+		SetQueryParamsFromValues(params.build())
 	data, err := h.do(http.MethodGet, ClansEndpoint.Build(), req, true)
 	if err != nil {
 		return nil, err
