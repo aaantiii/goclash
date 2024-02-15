@@ -10,7 +10,6 @@ func (e Endpoint) Build(routes ...string) string {
 	for _, route := range routes {
 		url += "/" + route
 	}
-
 	return url
 }
 
