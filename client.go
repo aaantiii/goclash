@@ -3,7 +3,6 @@ package goclash
 import (
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"slices"
 	"strconv"
@@ -224,8 +223,6 @@ func (h *Client) createAccountKey(account *APIAccount, index int) error {
 		CidrRanges:  []string{h.ipAddr},
 		Scopes:      []string{"clash"},
 	}
-	log.Print("key: ", key)
-
 	res, err := h.newDefaultRequest().SetBody(key).Post(DevKeyCreateEndpoint.URL())
 	if err != nil {
 		return err
@@ -247,7 +244,7 @@ func (h *Client) createAccountKey(account *APIAccount, index int) error {
 }
 
 func (h *Client) revokeAccountKey(key *APIKey) error {
-	payload := map[string]any{"id": key}
+	payload := map[string]string{"id": key.ID}
 	res, err := h.newDefaultRequest().SetBody(payload).Post(DevKeyRevokeEndpoint.URL())
 	if err != nil {
 		return err
