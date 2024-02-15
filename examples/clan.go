@@ -45,7 +45,7 @@ func main() {
 	fmt.Printf("%v\n", log)
 
 	// search clans
-	clans, err := client.SearchClans(goclash.SearchClanParams{Name: "Lost 5", PagingParams: &goclash.PagingParams{Limit: 5}})
+	clans, err := client.SearchClans(goclash.SearchClanParams{Name: "LOST", PagingParams: &goclash.PagingParams{Limit: 5}})
 	if err != nil {
 		panic(err)
 	}
