@@ -4,7 +4,7 @@ const keysPerAccount = 10
 
 type APIAccount struct {
 	Credentials *APIAccountCredentials
-	Keys        [10]*APIKey
+	Keys        [keysPerAccount]*APIKey
 }
 
 type APIAccountCredentials struct {
