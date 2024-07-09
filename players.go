@@ -197,8 +197,24 @@ func (h *Client) GetPlayer(tag string) (*Player, error) {
 	return player, err
 }
 
-// GetPlayers makes use of concurrency to get multiple players simultaneously.
-func (h *Client) GetPlayers(tags ...string) (Players, error) {
+// GetPlayers makes use of concurrency to get multiple players simultaneously. Players that failed to be fetched will be nil in the returned slice.
+func (h *Client) GetPlayers(tags ...string) Players {
+	var wg sync.WaitGroup
+	players := make(Players, len(tags))
+	for i, tag := range tags {
+		wg.Add(1)
+		go func(i int, tag string) {
+			defer wg.Done()
+			player, _ := h.GetPlayer(tag)
+			players[i] = player
+		}(i, tag)
+	}
+	wg.Wait()
+	return players
+}
+
+// GetPlayersWithError makes use of concurrency to get multiple players simultaneously. Unlike GetPlayers, this function returns nil and error if any of the players failed to be fetched.
+func (h *Client) GetPlayersWithError(tags ...string) (Players, error) {
 	var wg sync.WaitGroup
 	players := make(Players, len(tags))
 	errChan := make(chan error, len(tags))

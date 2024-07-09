@@ -37,7 +37,7 @@ func main() {
 	fmt.Println(player.Name)
 
 	// concurrently get multiple players by tag
-	players, err := client.GetPlayers("#8QYG8CJ0", "#Q9RY8YRYJ")
+	players, err := client.GetPlayersWithError("#8QYG8CJ0", "#Q9RY8YRYJ")
 	if err != nil {
 		panic(err)
 	}
