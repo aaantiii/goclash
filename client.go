@@ -1,6 +1,7 @@
 package goclash
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -47,6 +48,19 @@ func newClient(creds Credentials) (*Client, error) {
 	}
 
 	return client, nil
+}
+
+func newKeysClient(keys []string) (*Client, error) {
+	if len(keys) == 0 {
+		return nil, errors.New("no keys provided")
+	}
+	return &Client{
+		keys: &LiteralKeysProvider{
+			keys: keys,
+		},
+		rc:    &RequestsClient{resty.New()},
+		cache: newCache(),
+	}, nil
 }
 
 func (h *Client) do(method, url string, req *resty.Request, retry bool) ([]byte, error) {
