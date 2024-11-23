@@ -4,3 +4,7 @@ package goclash
 func New(creds Credentials) (*Client, error) {
 	return newClient(creds)
 }
+
+func NewWithKeys(keys ...string) (*Client, error) {
+	return newKeysClient(keys)
+}

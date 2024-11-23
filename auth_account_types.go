@@ -1,6 +1,18 @@
 package goclash
 
+import (
+	"sync"
+)
+
 const keysPerAccount = 10
+
+type AccountsKeyProvider struct {
+	accounts []*APIAccount
+	keyIndex APIKeyIndex
+	ipAddr   string
+	rc       *RequestsClient
+	mu       sync.Mutex
+}
 
 type APIAccount struct {
 	Credentials *APIAccountCredentials
