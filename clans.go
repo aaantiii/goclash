@@ -172,15 +172,15 @@ type ClanWarLogEntry struct {
 }
 
 type WarClan struct {
-	DestructionPercentage float64       `json:"destructionPercentage"`
-	Tag                   string        `json:"tag"`
-	Name                  string        `json:"name"`
-	BadgeURLs             ImageURLs     `json:"badgeUrls"`
-	ClanLevel             int           `json:"clanLevel"`
-	Attacks               int           `json:"attacks"`
-	Stars                 int           `json:"stars"`
-	ExpEarned             int           `json:"expEarned"`
-	Members               ClanWarMember `json:"members"`
+	DestructionPercentage float64         `json:"destructionPercentage"`
+	Tag                   string          `json:"tag"`
+	Name                  string          `json:"name"`
+	BadgeURLs             ImageURLs       `json:"badgeUrls"`
+	ClanLevel             int             `json:"clanLevel"`
+	Attacks               int             `json:"attacks"`
+	Stars                 int             `json:"stars"`
+	ExpEarned             int             `json:"expEarned"`
+	Members               []ClanWarMember `json:"members"`
 }
 
 type ClanWarMember struct {
